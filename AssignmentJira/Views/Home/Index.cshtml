@@ -1,0 +1,688 @@
+﻿@{
+    ViewData["Title"] = "Test-Bridge | Dashboard";
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"]</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+    <style>
+        :root {
+            --bg:        #0d0f14;
+            --surface:   #13161e;
+            --surface2:  #1a1e2a;
+            --border:    #252a38;
+            --accent:    #4f8ef7;
+            --accent2:   #a78bfa;
+            --danger:    #f05252;
+            --success:   #22c55e;
+            --warning:   #f59e0b;
+            --text:      #e8eaf2;
+            --muted:     #6b7280;
+            --mono:      'DM Mono', monospace;
+            --sans:      'DM Sans', sans-serif;
+            --display:   'Syne', sans-serif;
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: var(--sans);
+            min-height: 100vh;
+            font-size: 14px;
+        }
+
+        /* ── TOP BAR ── */
+        .topbar {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: 0 2rem;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .logo {
+            font-family: var(--display);
+            font-weight: 800;
+            font-size: 1.15rem;
+            letter-spacing: -0.5px;
+            color: var(--text);
+            white-space: nowrap;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+        }
+        .logo span { color: var(--accent); }
+        .logo-dot {
+            width: 8px; height: 8px;
+            background: var(--accent);
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .search-wrap {
+            flex: 1;
+            max-width: 420px;
+            position: relative;
+        }
+        .search-wrap i {
+            position: absolute;
+            left: .85rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--muted);
+            font-size: .95rem;
+        }
+        .search-input {
+            width: 100%;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: .45rem .85rem .45rem 2.25rem;
+            color: var(--text);
+            font-family: var(--sans);
+            font-size: .85rem;
+            outline: none;
+            transition: border-color .2s;
+        }
+        .search-input::placeholder { color: var(--muted); }
+        .search-input:focus { border-color: var(--accent); }
+
+        .topbar-right {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: .75rem;
+        }
+
+        .user-chip {
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: .35rem .75rem;
+            cursor: pointer;
+            transition: border-color .2s;
+        }
+        .user-chip:hover { border-color: var(--accent); }
+        .avatar {
+            width: 28px; height: 28px;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-family: var(--display);
+            font-weight: 700;
+            font-size: .75rem;
+            color: #fff;
+            flex-shrink: 0;
+        }
+        .user-name { font-size: .82rem; font-weight: 500; }
+
+        /* ── PAGE CONTENT ── */
+        .page-content { padding: 1.75rem 2rem; }
+
+        .toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.25rem;
+            gap: 1rem;
+        }
+
+        .sort-select {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text);
+            padding: .4rem .75rem;
+            font-family: var(--sans);
+            font-size: .82rem;
+            outline: none;
+            cursor: pointer;
+        }
+        .sort-select option { background: var(--surface2); }
+
+        .btn-create {
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: .45rem 1rem;
+            font-family: var(--display);
+            font-weight: 600;
+            font-size: .82rem;
+            letter-spacing: .3px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: .4rem;
+            transition: background .2s, transform .1s;
+        }
+        .btn-create:hover { background: #3a7ae8; transform: translateY(-1px); }
+
+        /* ── TABLE ── */
+        .table-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .exec-table { width: 100%; border-collapse: collapse; }
+
+        .exec-table thead tr {
+            background: var(--surface2);
+            border-bottom: 1px solid var(--border);
+        }
+        .exec-table thead th {
+            padding: .75rem 1rem;
+            font-family: var(--display);
+            font-size: .75rem;
+            font-weight: 700;
+            letter-spacing: .8px;
+            text-transform: uppercase;
+            color: var(--muted);
+            white-space: nowrap;
+        }
+
+        .exec-table tbody tr {
+            border-bottom: 1px solid var(--border);
+            transition: background .15s;
+            cursor: pointer;
+        }
+        .exec-table tbody tr:last-child { border-bottom: none; }
+        .exec-table tbody tr:hover { background: var(--surface2); }
+
+        .exec-table td {
+            padding: .85rem 1rem;
+            vertical-align: middle;
+        }
+
+        .ticket-badge {
+            font-family: var(--mono);
+            font-size: .8rem;
+            color: var(--accent);
+            background: rgba(79,142,247,.1);
+            border: 1px solid rgba(79,142,247,.25);
+            border-radius: 6px;
+            padding: .15rem .5rem;
+            display: inline-block;
+        }
+
+        .meta-row { display: flex; flex-direction: column; gap: 2px; }
+        .meta-main { font-weight: 500; font-size: .85rem; }
+        .meta-sub {
+            font-size: .75rem;
+            color: var(--muted);
+            font-family: var(--mono);
+        }
+
+        .tag {
+            display: inline-block;
+            padding: .15rem .55rem;
+            border-radius: 5px;
+            font-size: .75rem;
+            font-weight: 500;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            color: var(--text);
+        }
+
+        .status-select {
+            background: transparent;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text);
+            padding: .2rem .5rem;
+            font-size: .78rem;
+            font-family: var(--sans);
+            outline: none;
+            cursor: pointer;
+        }
+        .status-select option { background: var(--surface2); }
+        .status-select.s-inprogress { border-color: var(--warning); color: var(--warning); }
+        .status-select.s-completed  { border-color: var(--success); color: var(--success); }
+        .status-select.s-pending    { border-color: var(--muted);   color: var(--muted); }
+        .status-select.s-failed     { border-color: var(--danger);  color: var(--danger); }
+
+        .btn-delete {
+            background: transparent;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--muted);
+            padding: .25rem .55rem;
+            font-size: .85rem;
+            cursor: pointer;
+            transition: border-color .2s, color .2s;
+        }
+        .btn-delete:hover { border-color: var(--danger); color: var(--danger); }
+
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--muted);
+        }
+        .empty-state i { font-size: 2.5rem; margin-bottom: 1rem; display: block; }
+        .empty-state p { font-size: .9rem; }
+
+        /* ── MODAL ── */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,.65);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-overlay.show { display: flex; }
+
+        .modal-box {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            width: 100%;
+            max-width: 440px;
+            padding: 1.75rem;
+            box-shadow: 0 24px 60px rgba(0,0,0,.5);
+            animation: slideUp .25s ease;
+        }
+        @@keyframes slideUp {
+            from { opacity:0; transform:translateY(18px); }
+            to   { opacity:1; transform:translateY(0); }
+        }
+
+        .modal-header-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+        }
+        .modal-title {
+            font-family: var(--display);
+            font-size: 1.05rem;
+            font-weight: 700;
+        }
+        .btn-close-modal {
+            background: transparent;
+            border: none;
+            color: var(--muted);
+            font-size: 1.1rem;
+            cursor: pointer;
+            line-height: 1;
+        }
+        .btn-close-modal:hover { color: var(--text); }
+
+        .user-display {
+            display: flex;
+            align-items: center;
+            gap: .6rem;
+            margin-bottom: 1.25rem;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: .6rem .85rem;
+        }
+        .user-display span { font-size: .85rem; font-weight: 500; }
+
+        .form-label-tb {
+            display: block;
+            font-size: .75rem;
+            font-weight: 600;
+            letter-spacing: .5px;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-bottom: .4rem;
+        }
+        .form-label-tb .req { color: var(--accent); margin-left: 2px; }
+
+        .tb-input, .tb-select {
+            width: 100%;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: .5rem .75rem;
+            color: var(--text);
+            font-family: var(--sans);
+            font-size: .85rem;
+            outline: none;
+            margin-bottom: 1rem;
+            transition: border-color .2s;
+        }
+        .tb-input::placeholder { color: var(--muted); }
+        .tb-input:focus, .tb-select:focus { border-color: var(--accent); }
+        .tb-select option { background: var(--surface2); }
+
+        .modal-footer-row {
+            display: flex;
+            justify-content: flex-end;
+            gap: .75rem;
+            margin-top: .5rem;
+        }
+
+        .btn-cancel {
+            background: transparent;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--muted);
+            padding: .5rem 1.1rem;
+            font-family: var(--sans);
+            font-size: .85rem;
+            cursor: pointer;
+            transition: border-color .2s, color .2s;
+        }
+        .btn-cancel:hover { border-color: var(--text); color: var(--text); }
+
+        .btn-submit {
+            background: var(--accent);
+            border: none;
+            border-radius: 8px;
+            color: #fff;
+            padding: .5rem 1.3rem;
+            font-family: var(--display);
+            font-weight: 600;
+            font-size: .85rem;
+            cursor: pointer;
+            transition: background .2s;
+        }
+        .btn-submit:hover { background: #3a7ae8; }
+
+        /* scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg); }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+    </style>
+</head>
+<body>
+
+    <!-- ── TOP BAR ── -->
+    <header class="topbar">
+        <div class="logo">
+            <span class="logo-dot"></span>
+            Test<span>-Bridge</span>
+        </div>
+        <div class="search-wrap">
+            <i class="bi bi-search"></i>
+            <input type="text" class="search-input" id="searchInput" placeholder="Search by ticket, brand, device…" />
+        </div>
+        <div class="topbar-right">
+            <div class="user-chip">
+                <div class="avatar" id="avatarInitial">JD</div>
+                <span class="user-name" id="topbarUsername">John Doe</span>
+                <i class="bi bi-chevron-down" style="font-size:.7rem; color:var(--muted);"></i>
+            </div>
+        </div>
+    </header>
+
+    <!-- ── MAIN ── -->
+    <main class="page-content">
+
+        <!-- Toolbar -->
+        <div class="toolbar">
+            <div class="d-flex align-items-center gap-2">
+                <label style="font-size:.82rem; color:var(--muted);">Sort by:</label>
+                <select class="sort-select" id="sortSelect">
+                    <option value="newest">Newest First</option>
+                    <option value="oldest">Oldest First</option>
+                    <option value="ticket">Ticket No.</option>
+                    <option value="brand">Brand</option>
+                    <option value="status">Status</option>
+                </select>
+            </div>
+            <button class="btn-create" id="btnOpenCreate">
+                <i class="bi bi-plus-lg"></i>
+                Create Execution
+            </button>
+        </div>
+
+        <!-- Table -->
+        <div class="table-card">
+            <table class="exec-table" id="execTable">
+                <thead>
+                    <tr>
+                        <th>Ticket No.</th>
+                        <th>Brand</th>
+                        <th>Device</th>
+                        <th>Content Type</th>
+                        <th>Exec. Type</th>
+                        <th>Status</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody id="execTableBody">
+                    <!-- Sample rows – will be replaced by AJAX -->
+                    <tr onclick="window.location='/Execution/Details/1'">
+                        <td><span class="ticket-badge">ABC-1234</span></td>
+                        <td>
+                            <div class="meta-row">
+                                <span class="meta-main">Netflix</span>
+                                <span class="meta-sub">brand</span>
+                            </div>
+                        </td>
+                        <td><span class="tag">Smart TV</span></td>
+                        <td><span class="tag">VOD</span></td>
+                        <td><span class="tag">Functional</span></td>
+                        <td>
+                            <select class="status-select s-inprogress" onclick="event.stopPropagation()">
+                                <option value="In Progress" selected>In Progress</option>
+                                <option value="Completed">Completed</option>
+                                <option value="Pending">Pending</option>
+                                <option value="Failed">Failed</option>
+                            </select>
+                        </td>
+                        <td>
+                            <div class="meta-row" style="gap:4px;">
+                                <span style="font-size:.78rem; font-weight:500;">john.doe</span>
+                                <span class="meta-sub">Jun 12, 2025</span>
+                            </div>
+                        </td>
+                        <td>
+                            <button class="btn-delete" onclick="event.stopPropagation(); deleteExecution(1)" title="Delete">
+                                <i class="bi bi-trash3"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    <tr onclick="window.location='/Execution/Details/2'">
+                        <td><span class="ticket-badge">DEF-5678</span></td>
+                        <td>
+                            <div class="meta-row">
+                                <span class="meta-main">Hulu</span>
+                                <span class="meta-sub">brand</span>
+                            </div>
+                        </td>
+                        <td><span class="tag">Mobile</span></td>
+                        <td><span class="tag">Live TV</span></td>
+                        <td><span class="tag">Regression</span></td>
+                        <td>
+                            <select class="status-select s-completed" onclick="event.stopPropagation()">
+                                <option value="In Progress">In Progress</option>
+                                <option value="Completed" selected>Completed</option>
+                                <option value="Pending">Pending</option>
+                                <option value="Failed">Failed</option>
+                            </select>
+                        </td>
+                        <td>
+                            <div class="meta-row" style="gap:4px;">
+                                <span style="font-size:.78rem; font-weight:500;">jane.smith</span>
+                                <span class="meta-sub">Jun 10, 2025</span>
+                            </div>
+                        </td>
+                        <td>
+                            <button class="btn-delete" onclick="event.stopPropagation(); deleteExecution(2)" title="Delete">
+                                <i class="bi bi-trash3"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    <tr onclick="window.location='/Execution/Details/3'">
+                        <td><span class="ticket-badge">GHI-9012</span></td>
+                        <td>
+                            <div class="meta-row">
+                                <span class="meta-main">Disney+</span>
+                                <span class="meta-sub">brand</span>
+                            </div>
+                        </td>
+                        <td><span class="tag">Web Browser</span></td>
+                        <td><span class="tag">VOD</span></td>
+                        <td><span class="tag">Smoke</span></td>
+                        <td>
+                            <select class="status-select s-failed" onclick="event.stopPropagation()">
+                                <option value="In Progress">In Progress</option>
+                                <option value="Completed">Completed</option>
+                                <option value="Pending">Pending</option>
+                                <option value="Failed" selected>Failed</option>
+                            </select>
+                        </td>
+                        <td>
+                            <div class="meta-row" style="gap:4px;">
+                                <span style="font-size:.78rem; font-weight:500;">alex.k</span>
+                                <span class="meta-sub">Jun 8, 2025</span>
+                            </div>
+                        </td>
+                        <td>
+                            <button class="btn-delete" onclick="event.stopPropagation(); deleteExecution(3)" title="Delete">
+                                <i class="bi bi-trash3"></i>
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+    </main>
+
+    <!-- ── CREATE EXECUTION MODAL ── -->
+    <div class="modal-overlay" id="createModal">
+        <div class="modal-box">
+            <div class="modal-header-row">
+                <span class="modal-title">New Execution</span>
+                <button class="btn-close-modal" id="btnCloseModal"><i class="bi bi-x-lg"></i></button>
+            </div>
+
+            <!-- Username (display only) -->
+            <div class="user-display">
+                <div class="avatar" id="modalAvatarInitial">JD</div>
+                <span id="modalUsername">John Doe</span>
+            </div>
+
+            <label class="form-label-tb">Ticket Number <span class="req">*</span></label>
+            <input type="text" class="tb-input" id="ticketNo" placeholder="e.g. ABC-1234" />
+
+            <label class="form-label-tb">Brand</label>
+            <select class="tb-select" id="brandSelect">
+                <option value="">Select Brand type</option>
+                <option>Netflix</option>
+                <option>Hulu</option>
+                <option>Disney+</option>
+                <option>HBO Max</option>
+                <option>Peacock</option>
+                <option>Apple TV+</option>
+                <option>Amazon Prime Video</option>
+            </select>
+
+            <label class="form-label-tb">Device</label>
+            <select class="tb-select" id="deviceSelect">
+                <option value="">Select Device</option>
+                <option>Smart TV</option>
+                <option>Mobile</option>
+                <option>Web Browser</option>
+                <option>Tablet</option>
+                <option>Streaming Stick</option>
+                <option>Game Console</option>
+            </select>
+
+            <label class="form-label-tb">Execution Type</label>
+            <select class="tb-select" id="execTypeSelect">
+                <option value="">Select Exec. type</option>
+                <option>Functional</option>
+                <option>Regression</option>
+                <option>Smoke</option>
+                <option>Sanity</option>
+                <option>Integration</option>
+            </select>
+
+            <label class="form-label-tb">Your Region</label>
+            <select class="tb-select" id="regionSelect">
+                <option value="IST">IST</option>
+                <option value="EST">EST</option>
+                <option value="PST">PST</option>
+                <option value="CST">CST</option>
+            </select>
+
+            <div class="modal-footer-row">
+                <button class="btn-cancel" id="btnCancelModal">Cancel</button>
+                <button class="btn-submit" id="btnCreateExec">Create</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script>
+        // Modal open/close
+        $('#btnOpenCreate, #btnCloseModal, #btnCancelModal').on('click', function () {
+            $('#createModal').toggleClass('show');
+        });
+        $('#createModal').on('click', function (e) {
+            if ($(e.target).is('#createModal')) $(this).removeClass('show');
+        });
+
+        // Status select color update
+        $(document).on('change', '.status-select', function () {
+            $(this).removeClass('s-inprogress s-completed s-pending s-failed');
+            const map = {
+                'In Progress': 's-inprogress',
+                'Completed':   's-completed',
+                'Pending':     's-pending',
+                'Failed':      's-failed'
+            };
+            $(this).addClass(map[$(this).val()] || '');
+            // TODO: AJAX call to update status
+        });
+
+        // Search filter
+        $('#searchInput').on('input', function () {
+            const q = $(this).val().toLowerCase();
+            $('#execTableBody tr').each(function () {
+                $(this).toggle($(this).text().toLowerCase().includes(q));
+            });
+        });
+
+        function deleteExecution(id) {
+            if (!confirm('Delete this execution?')) return;
+            // TODO: AJAX DELETE call
+            console.log('Delete:', id);
+        }
+
+        // Create execution
+        $('#btnCreateExec').on('click', function () {
+            const ticket = $('#ticketNo').val().trim();
+            if (!ticket) { alert('Ticket number is required.'); return; }
+            // TODO: AJAX POST
+            console.log({
+                ticket,
+                brand:    $('#brandSelect').val(),
+                device:   $('#deviceSelect').val(),
+                execType: $('#execTypeSelect').val(),
+                region:   $('#regionSelect').val()
+            });
+            $('#createModal').removeClass('show');
+        });
+    </script>
+</body>
+</html>

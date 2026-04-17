@@ -1,0 +1,1263 @@
+﻿@model Guid
+@{
+    ViewData["Title"] = "Test-Bridge | Execution Details";
+    Layout = null;
+    var executionId = Model;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"]</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+    <style>
+        :root {
+            --bg: #0d0f14;
+            --surface: #13161e;
+            --surface2: #1a1e2a;
+            --border: #252a38;
+            --accent: #4f8ef7;
+            --accent2: #a78bfa;
+            --danger: #f05252;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --info: #38bdf8;
+            --text: #e8eaf2;
+            --muted: #6b7280;
+            --mono: 'DM Mono', monospace;
+            --sans: 'DM Sans', sans-serif;
+            --display: 'Syne', sans-serif;
+        }
+
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: var(--sans);
+            min-height: 100vh;
+            font-size: 14px;
+        }
+
+        /* ── TOP BAR ── */
+        .topbar {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: 0 2rem;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .logo {
+            font-family: var(--display);
+            font-weight: 800;
+            font-size: 1.15rem;
+            letter-spacing: -0.5px;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+            text-decoration: none;
+        }
+
+            .logo span {
+                color: var(--accent);
+            }
+
+        .logo-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--accent);
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .back-link {
+            display: flex;
+            align-items: center;
+            gap: .4rem;
+            color: var(--muted);
+            font-size: .82rem;
+            text-decoration: none;
+            transition: color .2s;
+        }
+
+            .back-link:hover {
+                color: var(--text);
+            }
+
+        .topbar-right {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: .75rem;
+        }
+
+        .avatar {
+            width: 28px;
+            height: 28px;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--display);
+            font-weight: 700;
+            font-size: .75rem;
+            color: #fff;
+        }
+
+        /* ── TICKET HEADER ── */
+        .ticket-header {
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: 1.25rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .ticket-meta {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .ticket-no {
+            font-family: var(--mono);
+            font-size: 1rem;
+            color: var(--accent);
+            background: rgba(79,142,247,.1);
+            border: 1px solid rgba(79,142,247,.25);
+            border-radius: 8px;
+            padding: .3rem .85rem;
+        }
+
+        .meta-item {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+            .meta-item .lbl {
+                font-size: .68rem;
+                text-transform: uppercase;
+                letter-spacing: .6px;
+                color: var(--muted);
+                font-weight: 600;
+            }
+
+            .meta-item .val {
+                font-size: .88rem;
+                font-weight: 500;
+            }
+
+        .meta-sep {
+            width: 1px;
+            height: 32px;
+            background: var(--border);
+        }
+
+        /* Header status select */
+        .header-status-wrap {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .header-status-select {
+            background: transparent;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text);
+            padding: .28rem .6rem;
+            font-size: .8rem;
+            font-family: var(--sans);
+            outline: none;
+            cursor: pointer;
+            min-width: 130px;
+        }
+
+            .header-status-select option {
+                background: var(--surface2);
+                color: var(--text);
+            }
+
+            .header-status-select.s-not_started {
+                border-color: var(--muted);
+                color: var(--muted);
+            }
+
+            .header-status-select.s-in_progress {
+                border-color: var(--warning);
+                color: var(--warning);
+            }
+
+            .header-status-select.s-passed {
+                border-color: var(--success);
+                color: var(--success);
+            }
+
+            .header-status-select.s-failed {
+                border-color: var(--danger);
+                color: var(--danger);
+            }
+
+            .header-status-select.s-blocked {
+                border-color: #f97316;
+                color: #f97316;
+            }
+
+            .header-status-select.s-skipped {
+                border-color: var(--info);
+                color: var(--info);
+            }
+
+            .header-status-select.s-retest {
+                border-color: var(--accent2);
+                color: var(--accent2);
+            }
+
+            .header-status-select.s-cancelled {
+                border-color: var(--muted);
+                color: var(--muted);
+            }
+
+        .btn-add-sub {
+            background: transparent;
+            border: 1px solid var(--accent);
+            border-radius: 8px;
+            color: var(--accent);
+            padding: .45rem 1rem;
+            font-family: var(--display);
+            font-weight: 600;
+            font-size: .82rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: .4rem;
+            transition: background .2s, color .2s;
+        }
+
+            .btn-add-sub:hover {
+                background: var(--accent);
+                color: #fff;
+            }
+
+            .btn-add-sub:disabled {
+                opacity: .6;
+                cursor: not-allowed;
+            }
+
+        /* ── PAGE CONTENT ── */
+        .page-content {
+            padding: 1.75rem 2rem;
+        }
+
+        /* ── EXECUTION ACCORDION CARD ── */
+        .exec-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            overflow: hidden;
+            transition: border-color .2s;
+        }
+
+            .exec-card:hover {
+                border-color: #353a50;
+            }
+
+        .exec-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: .9rem 1.25rem;
+            cursor: pointer;
+            user-select: none;
+            background: var(--surface);
+            transition: background .15s;
+        }
+
+            .exec-card-header:hover {
+                background: var(--surface2);
+            }
+
+        .exec-card-header-left {
+            display: flex;
+            align-items: center;
+            gap: .75rem;
+        }
+
+        .exec-chevron {
+            width: 22px;
+            height: 22px;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: .7rem;
+            color: var(--muted);
+            transition: transform .25s;
+            flex-shrink: 0;
+        }
+
+        .exec-card.expanded .exec-chevron {
+            transform: rotate(180deg);
+        }
+
+        .exec-title {
+            font-family: var(--display);
+            font-weight: 700;
+            font-size: .92rem;
+        }
+
+        .exec-subtitle {
+            font-size: .75rem;
+            color: var(--muted);
+            font-family: var(--mono);
+        }
+
+        .exec-card-status-pill {
+            font-size: .72rem;
+            font-weight: 600;
+            padding: .18rem .55rem;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            color: var(--muted);
+            background: var(--surface2);
+            white-space: nowrap;
+        }
+
+        .btn-remove-exec {
+            background: transparent;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--muted);
+            padding: .2rem .5rem;
+            font-size: .85rem;
+            cursor: pointer;
+            transition: border-color .2s, color .2s;
+        }
+
+            .btn-remove-exec:hover {
+                border-color: var(--danger);
+                color: var(--danger);
+            }
+
+        .exec-card-body {
+            display: none;
+            border-top: 1px solid var(--border);
+            padding: 1.25rem;
+        }
+
+        .exec-card.expanded .exec-card-body {
+            display: block;
+            animation: fadeIn .2s ease;
+        }
+        @@keyframes fadeIn {
+            from
+
+        {
+            opacity: 0;
+            transform: translateY(-6px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        }
+
+        /* ── FORM LAYOUT ── */
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: .85rem 1.25rem;
+            margin-bottom: 1.25rem;
+        }
+
+        .form-grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: .85rem 1.25rem;
+            margin-bottom: 1.25rem;
+        }
+
+        .field-group {
+            display: flex;
+            flex-direction: column;
+            gap: .35rem;
+        }
+
+        .field-label {
+            font-size: .72rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .5px;
+            color: var(--muted);
+        }
+
+        .tb-input, .tb-select, .tb-textarea {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: .48rem .75rem;
+            color: var(--text);
+            font-family: var(--sans);
+            font-size: .85rem;
+            outline: none;
+            transition: border-color .2s;
+            width: 100%;
+        }
+
+            .tb-input::placeholder, .tb-textarea::placeholder {
+                color: var(--muted);
+            }
+
+            .tb-input:focus, .tb-select:focus, .tb-textarea:focus {
+                border-color: var(--accent);
+            }
+
+            .tb-select option {
+                background: var(--surface2);
+            }
+
+            .tb-input[type="datetime-local"] {
+                color-scheme: dark;
+            }
+
+        .tb-textarea {
+            resize: vertical;
+            min-height: 90px;
+        }
+
+        /* ── SECTION DIVIDER ── */
+        .section-label {
+            display: flex;
+            align-items: center;
+            gap: .75rem;
+            margin-bottom: 1rem;
+        }
+
+            .section-label span {
+                font-size: .72rem;
+                font-weight: 700;
+                text-transform: uppercase;
+                letter-spacing: .8px;
+                color: var(--muted);
+                white-space: nowrap;
+            }
+
+            .section-label::after {
+                content: '';
+                flex: 1;
+                height: 1px;
+                background: var(--border);
+            }
+
+        /* ── ON-SCREEN OBS ROW ── */
+        .obs-row {
+            display: grid;
+            grid-template-columns: auto auto 1fr;
+            gap: 1.25rem;
+            align-items: end;
+            margin-bottom: 1rem;
+        }
+
+        .number-input-wrap {
+            display: flex;
+            align-items: center;
+        }
+
+        .num-btn {
+            width: 30px;
+            height: 34px;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            color: var(--text);
+            cursor: pointer;
+            font-size: .95rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background .15s;
+        }
+
+            .num-btn:first-child {
+                border-radius: 8px 0 0 8px;
+                border-right: none;
+            }
+
+            .num-btn:last-child {
+                border-radius: 0 8px 8px 0;
+                border-left: none;
+            }
+
+            .num-btn:hover {
+                background: var(--border);
+            }
+
+        .num-input {
+            width: 52px;
+            height: 34px;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-left: none;
+            border-right: none;
+            color: var(--text);
+            text-align: center;
+            font-family: var(--mono);
+            font-size: .88rem;
+            outline: none;
+        }
+
+        /* ── SAVE ROW ── */
+        .save-row {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 1rem;
+            gap: .5rem;
+        }
+
+        .btn-save {
+            background: var(--accent);
+            border: none;
+            border-radius: 8px;
+            color: #fff;
+            padding: .5rem 1.3rem;
+            font-family: var(--display);
+            font-weight: 600;
+            font-size: .85rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: .4rem;
+            transition: background .2s, opacity .2s;
+        }
+
+            .btn-save:hover {
+                background: #3a7ae8;
+            }
+
+            .btn-save:disabled {
+                opacity: .6;
+                cursor: not-allowed;
+            }
+
+        /* ── HISTORY PANEL ── */
+        .history-panel {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: .85rem 1rem;
+            margin-top: .5rem;
+        }
+
+        .history-entry {
+            display: flex;
+            align-items: flex-start;
+            gap: .65rem;
+            padding: .4rem 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+            .history-entry:last-child {
+                border-bottom: none;
+            }
+
+        .history-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--accent);
+            margin-top: 5px;
+            flex-shrink: 0;
+        }
+
+        .history-label {
+            font-size: .82rem;
+            font-weight: 500;
+        }
+
+        .history-meta {
+            font-size: .72rem;
+            color: var(--muted);
+            font-family: var(--mono);
+        }
+
+        /* Spinner */
+        .spinner {
+            width: 14px;
+            height: 14px;
+            border: 2px solid rgba(255,255,255,.3);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin .6s linear infinite;
+            display: none;
+        }
+        @@keyframes spin {
+            to
+
+        {
+            transform: rotate(360deg);
+        }
+
+        }
+
+        /* Skeleton loader */
+        .skeleton-line {
+            height: 14px;
+            background: linear-gradient(90deg, var(--surface2) 25%, var(--border) 50%, var(--surface2) 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.4s infinite;
+            border-radius: 4px;
+            display: inline-block;
+        }
+        @@keyframes shimmer {
+            0%
+
+        {
+            background-position: 200% 0;
+        }
+
+        100% {
+            background-position: -200% 0;
+        }
+
+        }
+
+        /* Toast */
+        .toast-wrap {
+            position: fixed;
+            bottom: 1.5rem;
+            right: 1.5rem;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: .5rem;
+        }
+
+        .toast-item {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: .65rem 1rem;
+            font-size: .82rem;
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+            min-width: 240px;
+            box-shadow: 0 8px 24px rgba(0,0,0,.4);
+            animation: toastIn .25s ease;
+        }
+        @@keyframes toastIn {
+            from
+
+        {
+            opacity: 0;
+            transform: translateX(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        }
+
+        .toast-item.success {
+            border-color: var(--success);
+        }
+
+        .toast-item.error {
+            border-color: var(--danger);
+        }
+
+        .toast-item i.success {
+            color: var(--success);
+        }
+
+        .toast-item i.error {
+            color: var(--danger);
+        }
+
+        /* Responsive */
+        @@media (max-width: 768px) {
+            .form-grid
+
+        {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .obs-row {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .ticket-meta {
+            gap: 1rem;
+        }
+
+        }
+        @@media (max-width: 540px) {
+            .form-grid, .form-grid-2
+
+        {
+            grid-template-columns: 1fr;
+        }
+
+        .obs-row {
+            grid-template-columns: 1fr;
+        }
+
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ── TOP BAR ── -->
+    <header class="topbar">
+        <a class="logo" href="/Execution/Dashboard">
+            <span class="logo-dot"></span>
+            Test<span>-Bridge</span>
+        </a>
+        <a class="back-link" href="/Execution/Dashboard">
+            <i class="bi bi-arrow-left"></i> Dashboard
+        </a>
+        <div class="topbar-right">
+            <div class="avatar" id="topbarAvatar">--</div>
+        </div>
+    </header>
+
+    <!-- ── TICKET HEADER (populated by JS) ── -->
+    <div class="ticket-header" id="ticketHeader">
+        <div class="ticket-meta" id="ticketMetaRow">
+            <!-- Skeleton while loading -->
+            <div class="skeleton-line" style="width:90px;height:28px;border-radius:8px;"></div>
+            <div class="meta-sep"></div>
+            <div class="skeleton-line" style="width:120px;"></div>
+            <div class="meta-sep"></div>
+            <div class="skeleton-line" style="width:80px;"></div>
+        </div>
+        <button class="btn-add-sub" id="btnAddExecution" disabled>
+            <i class="bi bi-plus-lg"></i>
+            Add Sub Execution
+        </button>
+    </div>
+
+    <!-- ── EXECUTIONS ── -->
+    <main class="page-content">
+        <div id="executionsContainer">
+            <!-- Cards injected by JS -->
+        </div>
+    </main>
+
+    <!-- Toast container -->
+    <div class="toast-wrap" id="toastWrap"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script>
+
+        // ── CONFIG ─────────────────────────────────────────────────────────────
+        const EXECUTION_ID  = '@executionId';
+        const CURRENT_USER  = {
+            username: '@(ViewBag.Username ?? "jsmith")',
+            fullName: '@(ViewBag.FullName ?? "John Smith")',
+            userId:   '@(ViewBag.UserId ?? "00000000-0000-0000-0000-000000000000")'
+        };
+
+        // ── STATUS CONFIG ──────────────────────────────────────────────────────
+        const STATUS_CLASS_MAP = {
+            'NOT_STARTED': 's-not_started',
+            'IN_PROGRESS': 's-in_progress',
+            'PASSED':      's-passed',
+            'FAILED':      's-failed',
+            'BLOCKED':     's-blocked',
+            'SKIPPED':     's-skipped',
+            'RETEST':      's-retest',
+            'CANCELLED':   's-cancelled'
+        };
+
+        // Hardcoded status list (matches execution_status_master seed data)
+        const ALL_STATUSES = [
+            { code: 'NOT_STARTED', label: 'Not Started' },
+            { code: 'IN_PROGRESS', label: 'In Progress' },
+            { code: 'PASSED',      label: 'Passed' },
+            { code: 'FAILED',      label: 'Failed' },
+            { code: 'BLOCKED',     label: 'Blocked' },
+            { code: 'SKIPPED',     label: 'Skipped' },
+            { code: 'RETEST',      label: 'Retest' },
+            { code: 'CANCELLED',   label: 'Cancelled' }
+        ];
+
+        function statusOpts(currentCode) {
+            return ALL_STATUSES.map(s =>
+                `<option value="${s.code}" ${s.code === currentCode ? 'selected' : ''}>${s.label}</option>`
+            ).join('');
+        }
+
+        // ── TOAST ──────────────────────────────────────────────────────────────
+        function showToast(message, type = 'success') {
+            const icon = type === 'success' ? 'bi-check-circle-fill' : 'bi-x-circle-fill';
+            const el = $(`<div class="toast-item ${type}">
+                <i class="bi ${icon} ${type}"></i>
+                <span>${message}</span>
+            </div>`);
+            $('#toastWrap').append(el);
+            setTimeout(() => el.fadeOut(300, () => el.remove()), 3000);
+        }
+
+        // ── HELPERS ────────────────────────────────────────────────────────────
+        function initials(name) {
+            if (!name) return '--';
+            const p = name.trim().split(' ');
+            return p.length >= 2 ? (p[0][0] + p[p.length-1][0]).toUpperCase() : name.substring(0,2).toUpperCase();
+        }
+
+        function fmtDate(iso) {
+            if (!iso) return '—';
+            return new Date(iso).toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' });
+        }
+
+        function fmtDateTimeLocal(iso) {
+            if (!iso) return '';
+            // Returns value usable in datetime-local input
+            const d = new Date(iso);
+            const pad = n => String(n).padStart(2,'0');
+            return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+        }
+
+        // ── RENDER TICKET HEADER ───────────────────────────────────────────────
+        function renderHeader(data) {
+            $('#topbarAvatar').text(initials(CURRENT_USER.fullName));
+
+            const statusOp = statusOpts(data.statusCode);
+            const cls = STATUS_CLASS_MAP[data.statusCode] || '';
+
+            $('#ticketMetaRow').html(`
+                <span class="ticket-no">${data.ticketNo}</span>
+                <div class="meta-sep"></div>
+                <div class="meta-item">
+                    <span class="lbl">Summary</span>
+                    <span class="val" style="max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${data.ticketSummary ?? ''}">${data.ticketSummary ?? '—'}</span>
+                </div>
+                <div class="meta-sep"></div>
+                <div class="meta-item">
+                    <span class="lbl">Device</span>
+                    <span class="val">${data.deviceName ?? '—'}</span>
+                </div>
+                <div class="meta-sep"></div>
+                <div class="meta-item">
+                    <span class="lbl">Region</span>
+                    <span class="val">${data.regionCode ?? '—'}</span>
+                </div>
+                <div class="meta-sep"></div>
+                <div class="meta-item">
+                    <span class="lbl">Exec. Type</span>
+                    <span class="val">${data.testCycle ?? '—'}</span>
+                </div>
+                <div class="meta-sep"></div>
+                <div class="header-status-wrap">
+                    <span class="lbl" style="font-size:.68rem;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);font-weight:600;margin-bottom:3px;display:block;">Status</span>
+                    <select class="header-status-select ${cls}"
+                            id="headerStatusSelect"
+                            onchange="onHeaderStatusChange(this)">
+                        ${statusOp}
+                    </select>
+                </div>
+            `);
+
+            $('#btnAddExecution').prop('disabled', false);
+        }
+
+        // ── RENDER SUB-EXECUTION CARDS ─────────────────────────────────────────
+        // Each observation from the main execution maps to one accordion card.
+        // The "parent" execution itself is card #1; subsequent observations are cards #2+.
+        let cardCount = 0;
+
+        function parseTagValue(tags, prefix) {
+            const t = (tags || []).find(t => t.startsWith(prefix + ':'));
+            return t ? t.slice(prefix.length + 1) : null;
+        }
+
+        function buildCard(opts) {
+            /*
+             opts: {
+                 cardNum,           // display number
+                 subExecutionId,    // Guid string — null for "new unsaved" card
+                 profileLogin,
+                 tvProvider,
+                 assetWatched,
+                 startTime,         // ISO or null
+                 endTime,
+                 preroll,           // 'Yes'|'No'
+                 midrollBreaks,     // number
+                 observations,      // text
+                 statusCode,
+                 createdAt,
+                 username,
+                 isNew              // true = not yet saved to server
+             }
+            */
+            const id = `exec-card-${opts.cardNum}`;
+            const subtitle = opts.isNew
+                ? 'Just created · unsaved'
+                : `${fmtDate(opts.createdAt)} · ${opts.username ?? CURRENT_USER.username}`;
+
+            const prerollVal = opts.preroll || 'Yes';
+            const midrollVal = opts.midrollBreaks ?? 0;
+            const startVal   = fmtDateTimeLocal(opts.startTime);
+            const endVal     = fmtDateTimeLocal(opts.endTime);
+            const obsVal     = opts.observations || '';
+            const profileVal = opts.profileLogin || '';
+            const providerVal= opts.tvProvider || '';
+            const assetVal   = opts.assetWatched || '';
+            const subId      = opts.subExecutionId || '';
+            const statusCls  = STATUS_CLASS_MAP[opts.statusCode || 'NOT_STARTED'] || 's-not_started';
+            const statusLbl  = ALL_STATUSES.find(s => s.code === (opts.statusCode || 'NOT_STARTED'))?.label || 'Not Started';
+
+            return `
+            <div class="exec-card${opts.isNew ? ' expanded' : ''}" id="${id}"
+                 data-sub-id="${subId}"
+                 data-card-num="${opts.cardNum}">
+                <div class="exec-card-header" onclick="toggleCard('${id}')">
+                    <div class="exec-card-header-left">
+                        <div class="exec-chevron"><i class="bi bi-chevron-down"></i></div>
+                        <div>
+                            <div class="exec-title">Execution #${opts.cardNum}</div>
+                            <div class="exec-subtitle">${subtitle}</div>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="exec-card-status-pill ${statusCls}">${statusLbl}</span>
+                        <button class="btn-remove-exec"
+                                onclick="event.stopPropagation(); removeCard('${id}', '${subId}')"
+                                title="Remove">
+                            <i class="bi bi-x-lg"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="exec-card-body">
+                    <!-- Basic Fields -->
+                    <div class="form-grid">
+                        <div class="field-group">
+                            <label class="field-label">Profile Login</label>
+                            <input type="text" class="tb-input inp-profile" placeholder="Enter profile login" value="${escHtml(profileVal)}" />
+                        </div>
+                        <div class="field-group">
+                            <label class="field-label">TV Provider</label>
+                            <input type="text" class="tb-input inp-provider" placeholder="e.g. Xfinity, DirecTV" value="${escHtml(providerVal)}" />
+                        </div>
+                        <div class="field-group">
+                            <label class="field-label">Asset Watched</label>
+                            <input type="text" class="tb-input inp-asset" placeholder="Title / Asset ID" value="${escHtml(assetVal)}" />
+                        </div>
+                    </div>
+
+                    <!-- Time -->
+                    <div class="form-grid-2">
+                        <div class="field-group">
+                            <label class="field-label">Start Time</label>
+                            <input type="datetime-local" class="tb-input inp-start" value="${startVal}" />
+                        </div>
+                        <div class="field-group">
+                            <label class="field-label">End Time</label>
+                            <input type="datetime-local" class="tb-input inp-end" value="${endVal}" />
+                        </div>
+                    </div>
+
+                    <!-- On-Screen Observations -->
+                    <div class="section-label"><span>On-Screen Observations</span></div>
+
+                    <div class="obs-row">
+                        <div class="field-group">
+                            <label class="field-label">Preroll Ad</label>
+                            <select class="tb-select inp-preroll" style="width:120px;">
+                                <option value="Yes" ${prerollVal === 'Yes' ? 'selected' : ''}>Yes</option>
+                                <option value="No"  ${prerollVal === 'No'  ? 'selected' : ''}>No</option>
+                            </select>
+                        </div>
+                        <div class="field-group">
+                            <label class="field-label">No. of Midroll Ad Breaks</label>
+                            <div class="number-input-wrap">
+                                <button type="button" class="num-btn" onclick="adjustNum(this, -1)">−</button>
+                                <input type="number" class="num-input inp-midroll" value="${midrollVal}" min="0" max="99" />
+                                <button type="button" class="num-btn" onclick="adjustNum(this, 1)">+</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="field-group" style="margin-bottom:1rem;">
+                        <label class="field-label">Add Detailed Observations</label>
+                        <textarea class="tb-textarea inp-obs" placeholder="Describe any on-screen observations, issues, or notes…">${escHtml(obsVal)}</textarea>
+                    </div>
+
+                    <div class="save-row">
+                        <button class="btn-save btn-save-card" data-card="${id}">
+                            <div class="spinner save-spinner"></div>
+                            <i class="bi bi-floppy save-icon"></i>
+                            <span class="save-label">Save Execution</span>
+                        </button>
+                    </div>
+                </div>
+            </div>`;
+        }
+
+        function escHtml(str) {
+            return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+        }
+
+        // ── TOGGLE CARD ────────────────────────────────────────────────────────
+        function toggleCard(id) {
+            document.getElementById(id).classList.toggle('expanded');
+        }
+
+        // ── ADJUST MIDROLL COUNTER ─────────────────────────────────────────────
+        function adjustNum(btn, delta) {
+            const input = btn.parentElement.querySelector('.num-input');
+            const val = parseInt(input.value || '0') + delta;
+            input.value = Math.max(0, Math.min(99, val));
+        }
+
+        // ── SAVE CARD (AddSubExecution or UpdateExecution) ─────────────────────
+        function collectCardPayload(card) {
+            const $c = $(card);
+            return {
+                ProfileLogin:          $c.find('.inp-profile').val().trim()   || null,
+                TvProvider:            $c.find('.inp-provider').val().trim()   || null,
+                AssetWatched:          $c.find('.inp-asset').val().trim()      || null,
+                StartTime:             $c.find('.inp-start').val()             || null,
+                EndTime:               $c.find('.inp-end').val()               || null,
+                PrerollAd:             $c.find('.inp-preroll').val(),
+                MidrollAdBreaks:       parseInt($c.find('.inp-midroll').val()) || 0,
+                DetailedObservations:  $c.find('.inp-obs').val().trim()        || null
+            };
+        }
+
+        $(document).on('click', '.btn-save-card', function () {
+            const cardId   = $(this).data('card');
+            const $card    = $(`#${cardId}`);
+            const subId    = $card.data('sub-id');
+            const isNew    = !subId;
+            const payload  = collectCardPayload($card);
+
+            const $btn = $(this);
+            $btn.prop('disabled', true);
+            $btn.find('.save-spinner').show();
+            $btn.find('.save-icon').hide();
+            $btn.find('.save-label').text('Saving…');
+
+            if (isNew) {
+                // ── ADD SUB EXECUTION ─────────────────────────────────────────
+                const body = Object.assign({}, payload, {
+                    ParentExecutionId_Guid: EXECUTION_ID
+                });
+
+                $.ajax({
+                    url: '/Execution/AddSubExecution',
+                    method: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(body)
+                })
+                .done(res => {
+                    if (!res.success) { showToast(res.message || 'Save failed.', 'error'); return; }
+                    $card.data('sub-id', res.data.subExecutionId);
+                    $card.find('.exec-subtitle').text(`Just saved · ${CURRENT_USER.username}`);
+                    // Update pill
+                    $card.find('.exec-card-status-pill')
+                         .removeClass(Object.values(STATUS_CLASS_MAP).join(' '))
+                         .addClass('s-not_started')
+                         .text('Not Started');
+                    showToast('Sub execution saved.');
+                })
+                .fail(() => showToast('Network error saving execution.', 'error'))
+                .always(() => {
+                    $btn.prop('disabled', false);
+                    $btn.find('.save-spinner').hide();
+                    $btn.find('.save-icon').show();
+                    $btn.find('.save-label').text('Save Execution');
+                });
+
+            } else {
+                // ── UPDATE EXISTING ───────────────────────────────────────────
+                $.ajax({
+                    url: `/Execution/UpdateExecution/${subId}`,
+                    method: 'PUT',
+                    contentType: 'application/json',
+                    data: JSON.stringify(payload)
+                })
+                .done(res => {
+                    if (!res.success) { showToast(res.message || 'Update failed.', 'error'); return; }
+                    showToast('Execution updated.');
+                })
+                .fail(() => showToast('Network error updating execution.', 'error'))
+                .always(() => {
+                    $btn.prop('disabled', false);
+                    $btn.find('.save-spinner').hide();
+                    $btn.find('.save-icon').show();
+                    $btn.find('.save-label').text('Save Execution');
+                });
+            }
+        });
+
+        // ── REMOVE CARD ────────────────────────────────────────────────────────
+        function removeCard(cardId, subId) {
+            if (!confirm('Remove this execution? This cannot be undone.')) return;
+
+            const $card = $(`#${cardId}`);
+
+            if (!subId) {
+                // Never saved — just remove from DOM
+                $card.fadeOut(200, () => $card.remove());
+                return;
+            }
+
+            $.ajax({ url: `/Execution/DeleteExecution/${subId}`, method: 'DELETE' })
+                .done(res => {
+                    if (!res.success) { showToast(res.message || 'Delete failed.', 'error'); return; }
+                    $card.fadeOut(200, () => { $card.remove(); showToast('Execution removed.'); });
+                })
+                .fail(() => showToast('Network error removing execution.', 'error'));
+        }
+
+        // ── ADD NEW CARD (unsaved, client-side) ────────────────────────────────
+        $('#btnAddExecution').on('click', function () {
+            cardCount++;
+            const html = buildCard({
+                cardNum:        cardCount,
+                subExecutionId: null,
+                isNew:          true
+            });
+            $('#executionsContainer').append(html);
+            const $newCard = $(`#exec-card-${cardCount}`);
+            $newCard[0].scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+
+        // ── HEADER STATUS CHANGE ───────────────────────────────────────────────
+        function onHeaderStatusChange(sel) {
+            const $sel = $(sel);
+            const statusCode = $sel.val();
+
+            $sel.removeClass(Object.values(STATUS_CLASS_MAP).join(' '));
+            $sel.addClass(STATUS_CLASS_MAP[statusCode] || '');
+
+            $.ajax({
+                url: '/Execution/UpdateStatus',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    ExecutionId:     EXECUTION_ID,
+                    StatusCode:      statusCode,
+                    ChangedByUserId: CURRENT_USER.userId
+                })
+            })
+            .done(res => {
+                if (!res.success) showToast(res.message || 'Status update failed.', 'error');
+                else showToast('Status updated.');
+            })
+            .fail(() => showToast('Network error updating status.', 'error'));
+        }
+
+        // ── LOAD PARENT EXECUTION DETAILS ─────────────────────────────────────
+        function loadDetails() {
+            $.get(`/Execution/GetExecutionDetails/${EXECUTION_ID}`)
+                .done(res => {
+                    if (!res.success || !res.data) {
+                        showToast('Execution not found.', 'error');
+                        return;
+                    }
+                    const data = res.data;
+                    renderHeader(data);
+
+                    // Card #1 = the parent execution itself
+                    cardCount = 1;
+                    const parentCard = buildCard({
+                        cardNum:        1,
+                        subExecutionId: EXECUTION_ID,
+                        profileLogin:   null,        // parent has no profile login in schema
+                        tvProvider:     null,
+                        assetWatched:   null,
+                        startTime:      data.startedAt,
+                        endTime:        data.completedAt,
+                        preroll:        'Yes',
+                        midrollBreaks:  0,
+                        observations:   data.notes,
+                        statusCode:     data.statusCode,
+                        createdAt:      data.executionDate,
+                        username:       data.username,
+                        isNew:          false
+                    });
+                    $('#executionsContainer').append(parentCard);
+                    $(`#exec-card-1`).addClass('expanded');
+
+                    // Cards #2+ = observations stored as sub-executions
+                    // (observations in the details response from service)
+                    (data.observations || []).forEach((obs, idx) => {
+                        cardCount++;
+                        const preroll      = parseTagValue(obs.tags, 'preroll');
+                        const midrollStr   = parseTagValue(obs.tags, 'midroll_breaks');
+                        const midroll      = midrollStr ? parseInt(midrollStr) : 0;
+                        const html = buildCard({
+                            cardNum:        cardCount,
+                            subExecutionId: obs.observationId,  // we use observationId as link key
+                            profileLogin:   null,
+                            tvProvider:     obs.stepsToRepro?.replace('TV Provider: ','') || null,
+                            assetWatched:   obs.title?.replace(/^Profile:.*\| Asset: /,'') || null,
+                            startTime:      null,
+                            endTime:        null,
+                            preroll:        preroll || 'Yes',
+                            midrollBreaks:  midroll,
+                            observations:   obs.description,
+                            statusCode:     'NOT_STARTED',
+                            createdAt:      obs.createdAt,
+                            username:       data.username,
+                            isNew:          false
+                        });
+                        $('#executionsContainer').append(html);
+                    });
+                })
+                .fail(() => showToast('Failed to load execution details.', 'error'));
+        }
+
+        // ── INIT ───────────────────────────────────────────────────────────────
+        $(function () {
+            $('#topbarAvatar').text(initials(CURRENT_USER.fullName));
+            loadDetails();
+        });
+
+    </script>
+</body>
+</html>

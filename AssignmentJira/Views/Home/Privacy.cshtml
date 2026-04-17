@@ -1,0 +1,823 @@
+﻿@{
+    ViewData["Title"] = "Test-Bridge | Execution Details";
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"]</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+    <style>
+        :root {
+            --bg: #0d0f14;
+            --surface: #13161e;
+            --surface2: #1a1e2a;
+            --border: #252a38;
+            --accent: #4f8ef7;
+            --accent2: #a78bfa;
+            --danger: #f05252;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --text: #e8eaf2;
+            --muted: #6b7280;
+            --mono: 'DM Mono', monospace;
+            --sans: 'DM Sans', sans-serif;
+            --display: 'Syne', sans-serif;
+        }
+
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: var(--sans);
+            min-height: 100vh;
+            font-size: 14px;
+        }
+
+        /* ── TOP BAR ── */
+        .topbar {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: 0 2rem;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .logo {
+            font-family: var(--display);
+            font-weight: 800;
+            font-size: 1.15rem;
+            letter-spacing: -0.5px;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+        }
+
+            .logo span {
+                color: var(--accent);
+            }
+
+        .logo-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--accent);
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .back-link {
+            display: flex;
+            align-items: center;
+            gap: .4rem;
+            color: var(--muted);
+            font-size: .82rem;
+            text-decoration: none;
+            transition: color .2s;
+        }
+
+            .back-link:hover {
+                color: var(--text);
+            }
+
+        .topbar-right {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: .75rem;
+        }
+
+        .avatar {
+            width: 28px;
+            height: 28px;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--display);
+            font-weight: 700;
+            font-size: .75rem;
+            color: #fff;
+        }
+
+        /* ── TICKET HEADER ── */
+        .ticket-header {
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: 1.25rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .ticket-meta {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .ticket-no {
+            font-family: var(--mono);
+            font-size: 1rem;
+            color: var(--accent);
+            background: rgba(79,142,247,.1);
+            border: 1px solid rgba(79,142,247,.25);
+            border-radius: 8px;
+            padding: .3rem .85rem;
+        }
+
+        .meta-item {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+            .meta-item .lbl {
+                font-size: .68rem;
+                text-transform: uppercase;
+                letter-spacing: .6px;
+                color: var(--muted);
+                font-weight: 600;
+            }
+
+            .meta-item .val {
+                font-size: .88rem;
+                font-weight: 500;
+            }
+
+        .meta-sep {
+            width: 1px;
+            height: 32px;
+            background: var(--border);
+        }
+
+        .btn-add-sub {
+            background: transparent;
+            border: 1px solid var(--accent);
+            border-radius: 8px;
+            color: var(--accent);
+            padding: .45rem 1rem;
+            font-family: var(--display);
+            font-weight: 600;
+            font-size: .82rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: .4rem;
+            transition: background .2s, color .2s;
+        }
+
+            .btn-add-sub:hover {
+                background: var(--accent);
+                color: #fff;
+            }
+
+        /* ── PAGE CONTENT ── */
+        .page-content {
+            padding: 1.75rem 2rem;
+        }
+
+        /* ── EXECUTION ACCORDION CARD ── */
+        .exec-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            overflow: hidden;
+            transition: border-color .2s;
+        }
+
+            .exec-card:hover {
+                border-color: #353a50;
+            }
+
+        .exec-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: .9rem 1.25rem;
+            cursor: pointer;
+            user-select: none;
+            background: var(--surface);
+            transition: background .15s;
+        }
+
+            .exec-card-header:hover {
+                background: var(--surface2);
+            }
+
+        .exec-card-header-left {
+            display: flex;
+            align-items: center;
+            gap: .75rem;
+        }
+
+        .exec-chevron {
+            width: 22px;
+            height: 22px;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: .7rem;
+            color: var(--muted);
+            transition: transform .25s;
+        }
+
+        .exec-card.expanded .exec-chevron {
+            transform: rotate(180deg);
+        }
+
+        .exec-title {
+            font-family: var(--display);
+            font-weight: 700;
+            font-size: .92rem;
+        }
+
+        .exec-subtitle {
+            font-size: .75rem;
+            color: var(--muted);
+            font-family: var(--mono);
+        }
+
+        .btn-remove-exec {
+            background: transparent;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--muted);
+            padding: .2rem .5rem;
+            font-size: .85rem;
+            cursor: pointer;
+            transition: border-color .2s, color .2s;
+        }
+
+            .btn-remove-exec:hover {
+                border-color: var(--danger);
+                color: var(--danger);
+            }
+
+        .exec-card-body {
+            display: none;
+            border-top: 1px solid var(--border);
+            padding: 1.25rem;
+        }
+
+        .exec-card.expanded .exec-card-body {
+            display: block;
+            animation: fadeIn .2s ease;
+        }
+
+        @@keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-6px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ── FORM ROWS ── */
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: .85rem 1.25rem;
+            margin-bottom: 1.25rem;
+        }
+
+        .form-grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: .85rem 1.25rem;
+            margin-bottom: 1.25rem;
+        }
+
+        .field-group {
+            display: flex;
+            flex-direction: column;
+            gap: .35rem;
+        }
+
+        .field-label {
+            font-size: .72rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .5px;
+            color: var(--muted);
+        }
+
+        .tb-input, .tb-select, .tb-textarea {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: .48rem .75rem;
+            color: var(--text);
+            font-family: var(--sans);
+            font-size: .85rem;
+            outline: none;
+            transition: border-color .2s;
+            width: 100%;
+        }
+
+            .tb-input::placeholder, .tb-textarea::placeholder {
+                color: var(--muted);
+            }
+
+            .tb-input:focus, .tb-select:focus, .tb-textarea:focus {
+                border-color: var(--accent);
+            }
+
+            .tb-select option {
+                background: var(--surface2);
+            }
+
+            .tb-input[type="datetime-local"] {
+                color-scheme: dark;
+            }
+
+        .tb-textarea {
+            resize: vertical;
+            min-height: 90px;
+        }
+
+        /* ── SECTION DIVIDER ── */
+        .section-label {
+            display: flex;
+            align-items: center;
+            gap: .75rem;
+            margin-bottom: 1rem;
+        }
+
+            .section-label span {
+                font-size: .72rem;
+                font-weight: 700;
+                text-transform: uppercase;
+                letter-spacing: .8px;
+                color: var(--muted);
+                white-space: nowrap;
+            }
+
+            .section-label::after {
+                content: '';
+                flex: 1;
+                height: 1px;
+                background: var(--border);
+            }
+
+        /* ── OBSERVATIONS ── */
+        .obs-row {
+            display: grid;
+            grid-template-columns: auto auto 1fr;
+            gap: 1.25rem;
+            align-items: end;
+            margin-bottom: 1rem;
+        }
+
+        .number-input-wrap {
+            display: flex;
+            align-items: center;
+            gap: 0;
+        }
+
+        .num-btn {
+            width: 30px;
+            height: 34px;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            color: var(--text);
+            cursor: pointer;
+            font-size: .95rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background .15s;
+        }
+
+            .num-btn:first-child {
+                border-radius: 8px 0 0 8px;
+                border-right: none;
+            }
+
+            .num-btn:last-child {
+                border-radius: 0 8px 8px 0;
+                border-left: none;
+            }
+
+            .num-btn:hover {
+                background: var(--border);
+            }
+
+        .num-input {
+            width: 52px;
+            height: 34px;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-left: none;
+            border-right: none;
+            color: var(--text);
+            text-align: center;
+            font-family: var(--mono);
+            font-size: .88rem;
+            outline: none;
+        }
+
+        /* ── SAVE ROW ── */
+        .save-row {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 1rem;
+        }
+
+        .btn-save {
+            background: var(--accent);
+            border: none;
+            border-radius: 8px;
+            color: #fff;
+            padding: .5rem 1.3rem;
+            font-family: var(--display);
+            font-weight: 600;
+            font-size: .85rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: .4rem;
+            transition: background .2s;
+        }
+
+            .btn-save:hover {
+                background: #3a7ae8;
+            }
+
+        /* scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 3px;
+        }
+
+        /* responsive */
+        @@media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .obs-row {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .ticket-meta {
+                gap: 1rem;
+            }
+        }
+
+        @@media (max-width: 540px) {
+            .form-grid, .form-grid-2 {
+                grid-template-columns: 1fr;
+            }
+
+            .obs-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ── TOP BAR ── -->
+    <header class="topbar">
+        <div class="logo">
+            <span class="logo-dot"></span>
+            Test<span>-Bridge</span>
+        </div>
+        <a class="back-link" href="/Execution/Dashboard">
+            <i class="bi bi-arrow-left"></i> Dashboard
+        </a>
+        <div class="topbar-right">
+            <div class="avatar">JD</div>
+        </div>
+    </header>
+
+    <!-- ── TICKET HEADER ── -->
+    <div class="ticket-header">
+        <div class="ticket-meta">
+            <span class="ticket-no">ABC-1234</span>
+            <div class="meta-sep"></div>
+            <div class="meta-item">
+                <span class="lbl">Brand</span>
+                <span class="val">Netflix</span>
+            </div>
+            <div class="meta-sep"></div>
+            <div class="meta-item">
+                <span class="lbl">Device</span>
+                <span class="val">Smart TV</span>
+            </div>
+            <div class="meta-sep"></div>
+            <div class="meta-item">
+                <span class="lbl">Content Type</span>
+                <span class="val">VOD</span>
+            </div>
+            <div class="meta-sep"></div>
+            <div class="meta-item">
+                <span class="lbl">Exec. Type</span>
+                <span class="val">Functional</span>
+            </div>
+        </div>
+        <button class="btn-add-sub" id="btnAddExecution">
+            <i class="bi bi-plus-lg"></i>
+            Add Sub Execution
+        </button>
+    </div>
+
+    <!-- ── EXECUTIONS ── -->
+    <main class="page-content">
+
+        <div id="executionsContainer">
+
+            <!-- ── EXECUTION #1 (expanded) ── -->
+            <div class="exec-card expanded" id="exec-1">
+                <div class="exec-card-header" onclick="toggleExec('exec-1')">
+                    <div class="exec-card-header-left">
+                        <div class="exec-chevron"><i class="bi bi-chevron-down"></i></div>
+                        <div>
+                            <div class="exec-title">Execution #1</div>
+                            <div class="exec-subtitle">Created Jun 12, 2025 · john.doe</div>
+                        </div>
+                    </div>
+                    <button class="btn-remove-exec" onclick="event.stopPropagation(); removeExec('exec-1')" title="Remove">
+                        <i class="bi bi-x-lg"></i>
+                    </button>
+                </div>
+
+                <div class="exec-card-body">
+
+                    <!-- Basic Fields -->
+                    <div class="form-grid">
+                        <div class="field-group">
+                            <label class="field-label">Profile Login</label>
+                            <input type="text" class="tb-input" placeholder="Enter profile login" />
+                        </div>
+                        <div class="field-group">
+                            <label class="field-label">TV Provider</label>
+                            <input type="text" class="tb-input" placeholder="e.g. Xfinity, DirecTV" />
+                        </div>
+                        <div class="field-group">
+                            <label class="field-label">Asset Watched</label>
+                            <input type="text" class="tb-input" placeholder="Title / Asset ID" />
+                        </div>
+                    </div>
+
+                    <!-- Time -->
+                    <div class="form-grid-2">
+                        <div class="field-group">
+                            <label class="field-label">Start Time</label>
+                            <input type="datetime-local" class="tb-input" />
+                        </div>
+                        <div class="field-group">
+                            <label class="field-label">End Time</label>
+                            <input type="datetime-local" class="tb-input" />
+                        </div>
+                    </div>
+
+                    <!-- On-Screen Observations -->
+                    <div class="section-label"><span>On-Screen Observations</span></div>
+
+                    <div class="obs-row">
+                        <div class="field-group">
+                            <label class="field-label">Preroll Ad</label>
+                            <select class="tb-select" style="width:120px;">
+                                <option value="Yes">Yes</option>
+                                <option value="No">No</option>
+                            </select>
+                        </div>
+                        <div class="field-group">
+                            <label class="field-label">No. of Midroll Ad Breaks</label>
+                            <div class="number-input-wrap">
+                                <button class="num-btn" onclick="adjustNum(this, -1)">−</button>
+                                <input type="number" class="num-input" value="1" min="0" max="99" />
+                                <button class="num-btn" onclick="adjustNum(this, 1)">+</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="field-group" style="margin-bottom:1rem;">
+                        <label class="field-label">Add Detailed Observations</label>
+                        <textarea class="tb-textarea" placeholder="Describe any on-screen observations, issues, or notes…"></textarea>
+                    </div>
+
+                    <div class="save-row">
+                        <button class="btn-save">
+                            <i class="bi bi-floppy"></i> Save Execution
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- ── EXECUTION #2 (collapsed) ── -->
+            <div class="exec-card" id="exec-2">
+                <div class="exec-card-header" onclick="toggleExec('exec-2')">
+                    <div class="exec-card-header-left">
+                        <div class="exec-chevron"><i class="bi bi-chevron-down"></i></div>
+                        <div>
+                            <div class="exec-title">Execution #2</div>
+                            <div class="exec-subtitle">Created Jun 12, 2025 · john.doe</div>
+                        </div>
+                    </div>
+                    <button class="btn-remove-exec" onclick="event.stopPropagation(); removeExec('exec-2')" title="Remove">
+                        <i class="bi bi-x-lg"></i>
+                    </button>
+                </div>
+
+                <div class="exec-card-body">
+                    <div class="form-grid">
+                        <div class="field-group">
+                            <label class="field-label">Profile Login</label>
+                            <input type="text" class="tb-input" placeholder="Enter profile login" />
+                        </div>
+                        <div class="field-group">
+                            <label class="field-label">TV Provider</label>
+                            <input type="text" class="tb-input" placeholder="e.g. Xfinity, DirecTV" />
+                        </div>
+                        <div class="field-group">
+                            <label class="field-label">Asset Watched</label>
+                            <input type="text" class="tb-input" placeholder="Title / Asset ID" />
+                        </div>
+                    </div>
+                    <div class="form-grid-2">
+                        <div class="field-group">
+                            <label class="field-label">Start Time</label>
+                            <input type="datetime-local" class="tb-input" />
+                        </div>
+                        <div class="field-group">
+                            <label class="field-label">End Time</label>
+                            <input type="datetime-local" class="tb-input" />
+                        </div>
+                    </div>
+                    <div class="section-label"><span>On-Screen Observations</span></div>
+                    <div class="obs-row">
+                        <div class="field-group">
+                            <label class="field-label">Preroll Ad</label>
+                            <select class="tb-select" style="width:120px;">
+                                <option value="Yes">Yes</option>
+                                <option value="No">No</option>
+                            </select>
+                        </div>
+                        <div class="field-group">
+                            <label class="field-label">No. of Midroll Ad Breaks</label>
+                            <div class="number-input-wrap">
+                                <button class="num-btn" onclick="adjustNum(this, -1)">−</button>
+                                <input type="number" class="num-input" value="0" min="0" max="99" />
+                                <button class="num-btn" onclick="adjustNum(this, 1)">+</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="field-group" style="margin-bottom:1rem;">
+                        <label class="field-label">Add Detailed Observations</label>
+                        <textarea class="tb-textarea" placeholder="Describe any on-screen observations, issues, or notes…"></textarea>
+                    </div>
+                    <div class="save-row">
+                        <button class="btn-save">
+                            <i class="bi bi-floppy"></i> Save Execution
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </div><!-- /executionsContainer -->
+
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script>
+        let execCount = 2;
+
+        function toggleExec(id) {
+            const card = document.getElementById(id);
+            card.classList.toggle('expanded');
+        }
+
+        function removeExec(id) {
+            if (!confirm('Remove this execution?')) return;
+            const card = document.getElementById(id);
+            card.style.transition = 'opacity .2s';
+            card.style.opacity = '0';
+            setTimeout(() => card.remove(), 220);
+            // TODO: AJAX DELETE
+        }
+
+        function adjustNum(btn, delta) {
+            const input = btn.parentElement.querySelector('.num-input');
+            const val = parseInt(input.value) + delta;
+            input.value = Math.max(0, Math.min(99, val));
+        }
+
+        function buildExecCard(num) {
+            return `
+            <div class="exec-card expanded" id="exec-${num}">
+                <div class="exec-card-header" onclick="toggleExec('exec-${num}')">
+                    <div class="exec-card-header-left">
+                        <div class="exec-chevron"><i class="bi bi-chevron-down"></i></div>
+                        <div>
+                            <div class="exec-title">Execution #${num}</div>
+                            <div class="exec-subtitle">Just created</div>
+                        </div>
+                    </div>
+                    <button class="btn-remove-exec" onclick="event.stopPropagation(); removeExec('exec-${num}')" title="Remove">
+                        <i class="bi bi-x-lg"></i>
+                    </button>
+                </div>
+                <div class="exec-card-body">
+                    <div class="form-grid">
+                        <div class="field-group">
+                            <label class="field-label">Profile Login</label>
+                            <input type="text" class="tb-input" placeholder="Enter profile login" />
+                        </div>
+                        <div class="field-group">
+                            <label class="field-label">TV Provider</label>
+                            <input type="text" class="tb-input" placeholder="e.g. Xfinity, DirecTV" />
+                        </div>
+                        <div class="field-group">
+                            <label class="field-label">Asset Watched</label>
+                            <input type="text" class="tb-input" placeholder="Title / Asset ID" />
+                        </div>
+                    </div>
+                    <div class="form-grid-2">
+                        <div class="field-group">
+                            <label class="field-label">Start Time</label>
+                            <input type="datetime-local" class="tb-input" />
+                        </div>
+                        <div class="field-group">
+                            <label class="field-label">End Time</label>
+                            <input type="datetime-local" class="tb-input" />
+                        </div>
+                    </div>
+                    <div class="section-label"><span>On-Screen Observations</span></div>
+                    <div class="obs-row">
+                        <div class="field-group">
+                            <label class="field-label">Preroll Ad</label>
+                            <select class="tb-select" style="width:120px;">
+                                <option value="Yes">Yes</option>
+                                <option value="No">No</option>
+                            </select>
+                        </div>
+                        <div class="field-group">
+                            <label class="field-label">No. of Midroll Ad Breaks</label>
+                            <div class="number-input-wrap">
+                                <button class="num-btn" onclick="adjustNum(this, -1)">−</button>
+                                <input type="number" class="num-input" value="0" min="0" max="99" />
+                                <button class="num-btn" onclick="adjustNum(this, 1)">+</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="field-group" style="margin-bottom:1rem;">
+                        <label class="field-label">Add Detailed Observations</label>
+                        <textarea class="tb-textarea" placeholder="Describe any on-screen observations, issues, or notes…"></textarea>
+                    </div>
+                    <div class="save-row">
+                        <button class="btn-save"><i class="bi bi-floppy"></i> Save Execution</button>
+                    </div>
+                </div>
+            </div>`;
+        }
+
+        $('#btnAddExecution').on('click', function () {
+            execCount++;
+            const html = buildExecCard(execCount);
+            $('#executionsContainer').append(html);
+            // scroll into view
+            document.getElementById('exec-' + execCount).scrollIntoView({ behavior: 'smooth', block: 'start' });
+            // TODO: AJAX POST to create sub-execution
+        });
+    </script>
+</body>
+</html>
