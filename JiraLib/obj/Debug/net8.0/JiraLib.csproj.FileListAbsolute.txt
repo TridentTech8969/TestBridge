@@ -22,3 +22,4 @@ D:\Asus\Documents\EV\TestBridge\JiraLib\obj\Debug\net8.0\JiraLib.dll
 D:\Asus\Documents\EV\TestBridge\JiraLib\obj\Debug\net8.0\refint\JiraLib.dll
 D:\Asus\Documents\EV\TestBridge\JiraLib\obj\Debug\net8.0\JiraLib.pdb
 D:\Asus\Documents\EV\TestBridge\JiraLib\obj\Debug\net8.0\ref\JiraLib.dll
+D:\Asus\Documents\EV\TestBridge\JiraLib\obj\Debug\net8.0\JiraLib.sourcelink.json
